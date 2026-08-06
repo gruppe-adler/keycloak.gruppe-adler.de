@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Credentials are injected at build time via environment variables
+  (see Dockerfile / GitHub Actions workflow). Nothing secret is baked
+  into this file or into any Docker image layer.
+-->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+    <server>
+      <id>github-arma3-squad</id>
+      <username>${env.GH_PACKAGES_ACTOR}</username>
+      <password>${env.GH_PACKAGES_TOKEN}</password>
+    </server>
+    <server>
+      <id>github-steam-idp</id>
+      <username>${env.GH_PACKAGES_ACTOR}</username>
+      <password>${env.GH_PACKAGES_TOKEN}</password>
+    </server>
+  </servers>
+</settings>

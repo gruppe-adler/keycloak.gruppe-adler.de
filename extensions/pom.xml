@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  This pom.xml has ONE job: download the two Keycloak extension jars from
+  GitHub Packages so the Dockerfile can copy them into /opt/keycloak/providers.
+
+  It is not a real build — nothing here is compiled.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>de.grad.keycloak</groupId>
+  <artifactId>keycloak-extensions-downloader</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+
+  <!--
+    Each GitHub Packages Maven package is tied to the specific GitHub
+    repository it was published from, e.g.:
+      https://maven.pkg.github.com/gruppe-adler/<REPO_NAME>
+
+    Replace REPLACE_WITH_ARMA3_SQUAD_REPO and REPLACE_WITH_STEAM_IDP_REPO
+    below with the actual repo names under github.com/gruppe-adler that
+    each package is published from. If both packages are published from
+    the SAME repo, just point both entries at that one repo name.
+  -->
+  <repositories>
+    <repository>
+      <id>github-arma3-squad</id>
+      <url>https://maven.pkg.github.com/gruppe-adler/REPLACE_WITH_ARMA3_SQUAD_REPO</url>
+      <releases><enabled>true</enabled></releases>
+      <snapshots><enabled>false</enabled></snapshots>
+    </repository>
+    <repository>
+      <id>github-steam-idp</id>
+      <url>https://maven.pkg.github.com/gruppe-adler/REPLACE_WITH_STEAM_IDP_REPO</url>
+      <releases><enabled>true</enabled></releases>
+      <snapshots><enabled>false</enabled></snapshots>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>de.grad.keycloak.squad</groupId>
+      <artifactId>keycloak-grad-arma3-squad</artifactId>
+      <version>0.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>de.grad.keycloak.steam</groupId>
+      <artifactId>keycloak-steam-idp</artifactId>
+      <version>0.0.7</version>
+    </dependency>
+  </dependencies>
+</project>

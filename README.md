@@ -12,6 +12,7 @@ GitHub Packages Maven repos are per-GitHub-repository:
 `https://maven.pkg.github.com/gruppe-adler/<REPO_NAME>`
 
 Open `extensions/pom.xml` and replace:
+
 - `REPLACE_WITH_ARMA3_SQUAD_REPO` → the repo name (under `gruppe-adler`) that publishes `keycloak-grad-arma3-squad`
 - `REPLACE_WITH_STEAM_IDP_REPO` → the repo name that publishes `keycloak-steam-idp`
 
@@ -22,7 +23,7 @@ If both jars are published from the same repo, point both entries at that repo.
 Set these in this repo under **Settings → Secrets and variables → Actions**:
 
 | Secret | Purpose |
-|---|---|
+| --- | --- |
 | `GH_PACKAGES_TOKEN` | A GitHub PAT (classic) with `read:packages` scope, used to download the extension jars from GitHub Packages. GitHub Packages requires auth for Maven downloads even on public packages, so a plain `GITHUB_TOKEN` isn't enough unless it belongs to the same repo the package was published from. If your PAT owner needs org access to `gruppe-adler` packages, also make sure SSO is authorized for the token. |
 | `DOCKERHUB_USERNAME` | Docker Hub username to push to `gruppeadler/keycloak`. |
 | `DOCKERHUB_TOKEN` | Docker Hub access token (Account Settings → Security → New Access Token). |
@@ -31,18 +32,19 @@ Set these in this repo under **Settings → Secrets and variables → Actions**:
 
 ## 3. What the workflow does
 
-On push to `main`, on version tags (`vX.Y.Z`), and manually via
-`workflow_dispatch`:
+The CI workflow runs only when a GitHub Release is published (`release`
+event with `types: [published]`).
 
 1. Builds the Dockerfile with BuildKit, passing the GitHub Packages
    credentials in as **build secrets** (`--mount=type=secret`), so they
    never land in an image layer or `docker history`.
 2. Pushes to `gruppeadler/keycloak` on Docker Hub, tagged:
-   - `latest` (on `main`)
-   - the semver tag (on `vX.Y.Z` tags)
-   - the short commit SHA (always)
+   - `latest` (for the default branch)
+   - the semver tag from the release
+   - the short commit SHA
 
-Pull requests build the image (to catch breakage) but do not push.
+It does not run for ordinary pushes, version tags, pull requests, or manual
+`workflow_dispatch` runs.
 
 ## 4. Building locally
 

@@ -1,12 +1,8 @@
 name: Build and push Keycloak image
 
 on:
-  push:
-    branches: [main]
-    tags: ["*.*.*"]
-  pull_request:
-    branches: [main]
-  workflow_dispatch: {}
+  release:
+    types: [published]
 
 env:
   DOCKERHUB_REPO: gruppeadler/keycloak

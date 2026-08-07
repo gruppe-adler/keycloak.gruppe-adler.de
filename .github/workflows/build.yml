@@ -30,6 +30,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Generate GitHub App token for package access
+        id: app_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: gruppe-adler
+          repositories: |
+            keycloak-grad-arma3-squad
+            keycloak-steam-idp
+
       - name: Determine image tags
         id: meta
         uses: docker/metadata-action@v5
@@ -48,7 +59,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           secrets: |
-            gh_actor=${{ github.actor }}
-            gh_token=${{ secrets.GH_PACKAGES_TOKEN }}
+            gh_actor=x-access-token
+            gh_token=${{ steps.app_token.outputs.token }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

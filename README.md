@@ -1,52 +1,91 @@
 # Custom Keycloak image
 
 Builds Keycloak `26.6.3` with two custom extensions pulled from GitHub
-Packages (Maven), and pushes the result to Docker Hub via GitHub Actions.
+Packages (Maven), and publishes the result to **GitHub Container Registry
+(GHCR)** whenever a GitHub Release is published.
 
 - `de.grad.keycloak.squad:keycloak-grad-arma3-squad:0.0.2`
 - `de.grad.keycloak.steam:keycloak-steam-idp:0.0.7`
 
-## 1. Fix the repository names (one-time)
+## How it fits together
 
-GitHub Packages Maven repos are per-GitHub-repository:
-`https://maven.pkg.github.com/gruppe-adler/<REPO_NAME>`
+```
+extensions/pom.xml     -> lists the two extension jars + which GitHub
+                           repos publish them (GitHub Packages Maven)
+extensions/settings.xml -> Maven auth for GitHub Packages, injected via
+                           env vars at build time (nothing secret is
+                           committed here)
+Dockerfile              -> 3 stages:
+                             1. fetch the two jars with Maven
+                             2. drop them into /opt/keycloak/providers
+                                and run `kc.sh build`
+                             3. copy the built server into a clean
+                                Keycloak base image
+.github/workflows/build.yml -> builds the Dockerfile and pushes it to
+                           GHCR, triggered when a release is published
+```
 
-Open `extensions/pom.xml` and replace:
+## One-time setup
 
-- `REPLACE_WITH_ARMA3_SQUAD_REPO` → the repo name (under `gruppe-adler`) that publishes `keycloak-grad-arma3-squad`
-- `REPLACE_WITH_STEAM_IDP_REPO` → the repo name that publishes `keycloak-steam-idp`
+**1. Fix the repo names in `extensions/pom.xml`.**
+GitHub Packages Maven repos are per-GitHub-repository
+(`https://maven.pkg.github.com/gruppe-adler/<REPO_NAME>`). Replace
+`REPLACE_WITH_ARMA3_SQUAD_REPO` and `REPLACE_WITH_STEAM_IDP_REPO` with the
+actual repo names under `gruppe-adler` that publish each jar.
 
-If both jars are published from the same repo, point both entries at that repo.
-
-## 2. Required GitHub Actions secrets
-
-Set these in this repo under **Settings → Secrets and variables → Actions**:
+**2. Add one repo secret.**
+Go to **Settings → Secrets and variables → Actions** and add:
 
 | Secret | Purpose |
-| --- | --- |
-| `GH_PACKAGES_TOKEN` | A GitHub PAT (classic) with `read:packages` scope, used to download the extension jars from GitHub Packages. GitHub Packages requires auth for Maven downloads even on public packages, so a plain `GITHUB_TOKEN` isn't enough unless it belongs to the same repo the package was published from. If your PAT owner needs org access to `gruppe-adler` packages, also make sure SSO is authorized for the token. |
-| `DOCKERHUB_USERNAME` | Docker Hub username to push to `gruppeadler/keycloak`. |
-| `DOCKERHUB_TOKEN` | Docker Hub access token (Account Settings → Security → New Access Token). |
+|---|---|
+| `GH_PACKAGES_TOKEN` | A GitHub PAT (classic) with `read:packages` scope. Needed because GitHub Packages requires auth for Maven downloads even for public packages, and the built-in `GITHUB_TOKEN` can't read packages published from *other* repos. If the PAT owner needs org access to `gruppe-adler` packages, make sure SSO is authorized for it. |
 
-`github.actor` is used automatically as the Maven username for `GH_PACKAGES_TOKEN`, so no separate secret is needed for that.
+That's the only secret you need to add. Pushing to GHCR uses the
+automatically-provided `GITHUB_TOKEN` — no extra setup required, though the
+first time an image is pushed you may want to check
+**Package settings → Manage Actions access** on the resulting GHCR package
+if you want it visible/linked to this repo, or set it public if you don't
+want to deal with pull auth later.
 
-## 3. What the workflow does
+## Creating a new release (triggers the build)
 
-The CI workflow runs only when a GitHub Release is published (`release`
-event with `types: [published]`).
+The workflow runs on `release: published`, so:
 
-1. Builds the Dockerfile with BuildKit, passing the GitHub Packages
-   credentials in as **build secrets** (`--mount=type=secret`), so they
-   never land in an image layer or `docker history`.
-2. Pushes to `gruppeadler/keycloak` on Docker Hub, tagged:
-   - `latest` (for the default branch)
-   - the semver tag from the release
-   - the short commit SHA
+1. Bump anything that needs bumping first (Keycloak version in
+   `Dockerfile`, extension versions in `extensions/pom.xml`) and merge
+   that to `main`. **The workflow file itself must be on `main`/the
+   default branch too** — GitHub reads `release`-triggered workflows from
+   there, not from the tag.
+2. On GitHub, go to **Releases → Draft a new release**.
+3. Choose or create a tag, e.g. `v1.2.0` (the `v` prefix is expected by
+   the semver tagging in the workflow).
+4. Fill in a title/notes and click **Publish release** (not "Save draft" —
+   drafts don't trigger the workflow).
+5. Check the **Actions** tab — a "Build and push Keycloak image" run
+   should start immediately.
 
-It does not run for ordinary pushes, version tags, pull requests, or manual
-`workflow_dispatch` runs.
+Or trigger a build manually any time without a release, via
+**Actions → Build and push Keycloak image → Run workflow**
+(no image push tag semantics apply there beyond `latest`/sha).
 
-## 4. Building locally
+## Resulting image tags
+
+Each successful run on a release publishes:
+
+- `ghcr.io/gruppe-adler/keycloak:latest`
+- `ghcr.io/gruppe-adler/keycloak:<version>` (e.g. `1.2.0`, from the release tag)
+- `ghcr.io/gruppe-adler/keycloak:<short-sha>`
+
+Pull it with:
+
+```bash
+docker pull ghcr.io/gruppe-adler/keycloak:latest
+```
+
+(If the GHCR package is private, you'll need `docker login ghcr.io` with a
+PAT that has `read:packages` first.)
+
+## Building locally
 
 ```bash
 export DOCKER_BUILDKIT=1
@@ -59,17 +98,3 @@ docker buildx build \
 
 Where `GH_ACTOR` is your GitHub username and `GH_TOKEN` is a PAT with
 `read:packages` scope, exported in your shell first.
-
-## 5. Bumping the Keycloak version
-
-Change the default in `Dockerfile`:
-
-```dockerfile
-ARG KEYCLOAK_VERSION=26.6.3
-```
-
-or pass `--build-arg KEYCLOAK_VERSION=...` at build time.
-
-## 6. Bumping an extension version
-
-Edit the `<version>` in `extensions/pom.xml` for the relevant dependency.

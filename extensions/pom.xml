@@ -15,26 +15,16 @@
   <version>1.0.0</version>
   <packaging>pom</packaging>
 
-  <!--
-    Each GitHub Packages Maven package is tied to the specific GitHub
-    repository it was published from, e.g.:
-      https://maven.pkg.github.com/gruppe-adler/<REPO_NAME>
-
-    Replace REPLACE_WITH_ARMA3_SQUAD_REPO and REPLACE_WITH_STEAM_IDP_REPO
-    below with the actual repo names under github.com/gruppe-adler that
-    each package is published from. If both packages are published from
-    the SAME repo, just point both entries at that one repo name.
-  -->
   <repositories>
     <repository>
       <id>github-arma3-squad</id>
-      <url>https://maven.pkg.github.com/gruppe-adler/REPLACE_WITH_ARMA3_SQUAD_REPO</url>
+      <url>https://maven.pkg.github.com/gruppe-adler/keycloak-grad-arma3-squad</url>
       <releases><enabled>true</enabled></releases>
       <snapshots><enabled>false</enabled></snapshots>
     </repository>
     <repository>
       <id>github-steam-idp</id>
-      <url>https://maven.pkg.github.com/gruppe-adler/REPLACE_WITH_STEAM_IDP_REPO</url>
+      <url>https://maven.pkg.github.com/gruppe-adler/keycloak-steam-idp</url>
       <releases><enabled>true</enabled></releases>
       <snapshots><enabled>false</enabled></snapshots>
     </repository>

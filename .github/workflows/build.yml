@@ -41,6 +41,15 @@ jobs:
             keycloak-grad-arma3-squad
             keycloak-steam-idp
 
+      - name: Debug - test package access with generated token
+        run: |
+          curl -sS -o /dev/null -w "arma3-squad repo: HTTP %{http_code}\n" \
+            -u "x-access-token:${{ steps.app_token.outputs.token }}" \
+            https://maven.pkg.github.com/gruppe-adler/keycloak-grad-arma3-squad/de/grad/keycloak/squad/keycloak-grad-arma3-squad/0.0.2/keycloak-grad-arma3-squad-0.0.2.pom
+          curl -sS -o /dev/null -w "steam-idp repo: HTTP %{http_code}\n" \
+            -u "x-access-token:${{ steps.app_token.outputs.token }}" \
+            https://maven.pkg.github.com/gruppe-adler/keycloak-steam-idp/de/grad/keycloak/steam/keycloak-steam-idp/0.0.7/keycloak-steam-idp-0.0.7.pom
+
       - name: Determine image tags
         id: meta
         uses: docker/metadata-action@v5

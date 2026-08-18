@@ -17,10 +17,10 @@ RUN --mount=type=secret,id=gh_actor \
     export GH_PACKAGES_ACTOR="$(cat /run/secrets/gh_actor)" && \
     export GH_PACKAGES_TOKEN="$(cat /run/secrets/gh_token)" && \
     mvn -B -s settings.xml \
-        org.apache.maven.plugins:maven-dependency-plugin:3.6.1:copy-dependencies \
-        -DoutputDirectory=/build/target/providers \
-        -DexcludeTransitive=true \
-        -DincludeScope=runtime
+    org.apache.maven.plugins:maven-dependency-plugin:3.6.1:copy-dependencies \
+    -DoutputDirectory=/build/target/providers \
+    -DexcludeTransitive=true \
+    -DincludeScope=runtime
 
 ##########################################################################
 # Stage 2: build the Keycloak server with the extensions installed
@@ -41,4 +41,4 @@ FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION}
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
-CMD ["start"]
+CMD ["start", "--server-async-bootstrap=false"]

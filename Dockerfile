@@ -41,4 +41,4 @@ FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION}
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
-CMD ["start", "--server-async-bootstrap=false"]
+CMD ["start", "--optimized", "--server-async-bootstrap=false"]

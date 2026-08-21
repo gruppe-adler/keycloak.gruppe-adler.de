@@ -34,7 +34,7 @@
     <dependency>
       <groupId>de.grad.keycloak.squad</groupId>
       <artifactId>keycloak-grad-arma3-squad</artifactId>
-      <version>0.0.2</version>
+      <version>0.0.3</version>
     </dependency>
     <dependency>
       <groupId>de.grad.keycloak.steam</groupId>

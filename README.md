@@ -4,9 +4,6 @@ Builds Keycloak `26.6.3` with two custom extensions pulled from GitHub
 Packages (Maven), and publishes the result to **GitHub Container Registry
 (GHCR)** whenever a GitHub Release is published.
 
-- `de.grad.keycloak.squad:keycloak-grad-arma3-squad:0.0.2`
-- `de.grad.keycloak.steam:keycloak-steam-idp:0.0.7`
-
 ## How it fits together
 
 ```

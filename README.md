@@ -99,3 +99,18 @@ docker buildx build \
 
 Where `GH_ACTOR` is your GitHub username and `GH_TOKEN` is a PAT with
 `read:packages` scope, exported in your shell first.
+
+## Tests
+
+Every pull request (including Dependabot's) runs
+`.github/workflows/test.yml`: it builds the image without pushing it and
+runs `tests/smoke-test.sh`, which starts the image next to a throwaway
+Postgres and checks that Keycloak boots, that both extensions are loaded,
+and that nothing is logged at `ERROR`. Run it locally against an image
+you built with:
+
+```bash
+tests/smoke-test.sh keycloak-custom:local
+```
+
+(needs Docker, `curl` and `jq`; set `PORT` if 8080 is taken).

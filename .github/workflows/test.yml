@@ -18,15 +18,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       # Dependabot PRs only see Dependabot secrets, hence the fallback to
       # DEPENDABOT_GH_PACKAGES_TOKEN (the same PAT the Dependabot registries use).
       - name: Build image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           load: true

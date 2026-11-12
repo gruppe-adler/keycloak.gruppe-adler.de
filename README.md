@@ -56,8 +56,11 @@ The workflow runs on `release: published`, so:
 2. On GitHub, go to **Releases → Draft a new release**.
 3. Choose or create a tag, e.g. `v1.2.0` (the `v` prefix is expected by
    the semver tagging in the workflow).
-4. Fill in a title/notes and click **Publish release** (not "Save draft" —
-   drafts don't trigger the workflow).
+4. Fill in a title and click **Publish release** (not "Save draft" —
+   drafts don't trigger the workflow). Leave the notes empty to have the
+   workflow fill in a changelog from the PRs merged since the previous
+   release (Dependabot PRs are listed under "Dependencies", see
+   `.github/release.yml`); notes you write yourself are kept as-is.
 5. Check the **Actions** tab — a "Build and push Keycloak image" run
    should start immediately.
 

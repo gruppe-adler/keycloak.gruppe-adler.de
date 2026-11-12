@@ -1,0 +1,48 @@
+version: 2
+
+registries:
+  # The extension jars live in GitHub Packages, which requires auth even for
+  # reads. DEPENDABOT_GH_PACKAGES_TOKEN must be a *Dependabot* secret
+  # (Settings → Secrets and variables → Dependabot) holding a PAT with
+  # read:packages.
+  github-arma3-squad:
+    type: maven-repository
+    url: https://maven.pkg.github.com/gruppe-adler/keycloak-grad-arma3-squad
+    username: x-access-token
+    password: ${{ secrets.DEPENDABOT_GH_PACKAGES_TOKEN }}
+  github-steam-idp:
+    type: maven-repository
+    url: https://maven.pkg.github.com/gruppe-adler/keycloak-steam-idp
+    username: x-access-token
+    password: ${{ secrets.DEPENDABOT_GH_PACKAGES_TOKEN }}
+
+updates:
+  # Keycloak extension jars (extensions/pom.xml).
+  - package-ecosystem: "maven"
+    directory: "/extensions"
+    registries:
+      - github-arma3-squad
+      - github-steam-idp
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "TheWillard"
+
+  # Keycloak base image + Maven build image (Dockerfile).
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "TheWillard"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "TheWillard"
+    groups:
+      actions:
+        patterns:
+          - "*"

@@ -10,6 +10,32 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  # Fill in an empty release title and description. Hand-written ones are kept.
+  release-notes:
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      # The PRs merged since the previous release, grouped by .github/release.yml.
+      - name: Generate release notes
+        if: github.event.release.body == ''
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" -f tag_name="$TAG" --jq .body > notes.md
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --notes-file notes.md
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name }}
+
+      # Without a title GitHub shows the tagged commit's message (e.g. a merge commit).
+      - name: Use tag as release title
+        if: github.event.release.name == ''
+        run: gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "$TAG"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name }}
+
   build:
     runs-on: ubuntu-latest
     permissions:

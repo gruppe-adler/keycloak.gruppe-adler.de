@@ -42,4 +42,20 @@
       <version>0.0.9</version>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Version pinned here (not on the mvn command line) so Dependabot bumps it. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.6.1</version>
+        <configuration>
+          <outputDirectory>${project.build.directory}/providers</outputDirectory>
+          <excludeTransitive>true</excludeTransitive>
+          <includeScope>runtime</includeScope>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

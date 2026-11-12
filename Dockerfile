@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1.7
 
-ARG KEYCLOAK_VERSION=26.6.3
+# The Keycloak version is written out in both FROM lines (not via ARG) so
+# Dependabot can see and bump it. Keep the two in sync.
 
 ##########################################################################
 # Stage 1: fetch the two extension jars from GitHub Packages (Maven)
@@ -16,16 +17,12 @@ RUN --mount=type=secret,id=gh_actor \
     --mount=type=secret,id=gh_token \
     export GH_PACKAGES_ACTOR="$(cat /run/secrets/gh_actor)" && \
     export GH_PACKAGES_TOKEN="$(cat /run/secrets/gh_token)" && \
-    mvn -B -s settings.xml \
-    org.apache.maven.plugins:maven-dependency-plugin:3.6.1:copy-dependencies \
-    -DoutputDirectory=/build/target/providers \
-    -DexcludeTransitive=true \
-    -DincludeScope=runtime
+    mvn -B -s settings.xml dependency:copy-dependencies
 
 ##########################################################################
 # Stage 2: build the Keycloak server with the extensions installed
 ##########################################################################
-FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION} AS builder
+FROM quay.io/keycloak/keycloak:26.6.3 AS builder
 
 COPY --from=extensions /build/target/providers/ /opt/keycloak/providers/
 
@@ -36,7 +33,7 @@ RUN /opt/keycloak/bin/kc.sh build
 ##########################################################################
 # Stage 3: final runtime image
 ##########################################################################
-FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION}
+FROM quay.io/keycloak/keycloak:26.6.3
 
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 

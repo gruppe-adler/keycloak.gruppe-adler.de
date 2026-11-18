@@ -7,7 +7,7 @@
 ##########################################################################
 # Stage 1: fetch the two extension jars from GitHub Packages (Maven)
 ##########################################################################
-FROM maven:3.9-eclipse-temurin-26@sha256:b2c1ad85954592f9928e84327c65201f308ad9b5d8ed7d5b823717c97bf23fbb AS extensions
+FROM maven:3.9-amazoncorretto-25@sha256:1a15a026421093fa86053b17b116ede95acfa28346e5cf3e154943bc01db7119 AS extensions
 
 WORKDIR /build
 COPY extensions/pom.xml extensions/settings.xml ./

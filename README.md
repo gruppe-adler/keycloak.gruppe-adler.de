@@ -1,6 +1,6 @@
 # Custom Keycloak image
 
-Builds Keycloak `26.6.3` with two custom extensions pulled from GitHub
+Builds Keycloak with two custom extensions pulled from GitHub
 Packages (Maven), and publishes the result to **GitHub Container Registry
 (GHCR)** whenever a GitHub Release is published.
 

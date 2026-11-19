@@ -23,7 +23,7 @@ RUN --mount=type=secret,id=gh_actor \
 ##########################################################################
 # Stage 2: build the Keycloak server with the extensions installed
 ##########################################################################
-FROM quay.io/keycloak/keycloak:26.8.2-2@sha256:c68e286cacd87b942ac1939a0a1481461109d6acd3a57dc496969a319a76bbf0 AS builder
+FROM quay.io/keycloak/keycloak:26.8.2-3@sha256:7e66a96e4739239070aeaf72e4c5decf0f7f682cfc725b9f7ea2b336eaba38b3 AS builder
 
 COPY --from=extensions /build/target/providers/ /opt/keycloak/providers/
 
@@ -34,7 +34,7 @@ RUN /opt/keycloak/bin/kc.sh build
 ##########################################################################
 # Stage 3: final runtime image
 ##########################################################################
-FROM quay.io/keycloak/keycloak:26.8.2-2@sha256:c68e286cacd87b942ac1939a0a1481461109d6acd3a57dc496969a319a76bbf0
+FROM quay.io/keycloak/keycloak:26.8.2-3@sha256:7e66a96e4739239070aeaf72e4c5decf0f7f682cfc725b9f7ea2b336eaba38b3
 
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
